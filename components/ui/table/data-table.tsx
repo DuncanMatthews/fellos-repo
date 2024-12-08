@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import {
@@ -29,7 +30,7 @@ import {
   useReactTable
 } from '@tanstack/react-table';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
-import { parseAsInteger, useQueryState } from 'nuqs';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -44,19 +45,22 @@ export function DataTable<TData, TValue>({
   totalItems,
   pageSizeOptions = [10, 20, 30, 40, 50]
 }: DataTableProps<TData, TValue>) {
-  const [currentPage, setCurrentPage] = useQueryState(
-    'page',
-    parseAsInteger.withOptions({ shallow: false }).withDefault(1)
-  );
-  const [pageSize, setPageSize] = useQueryState(
-    'limit',
-    parseAsInteger
-      .withOptions({ shallow: false, history: 'push' })
-      .withDefault(10)
-  );
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const currentPage = Number(searchParams.get('page')) || 1;
+  const pageSize = Number(searchParams.get('limit')) || 10;
+
+  const updateParams = (page: number, limit: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', page.toString());
+    params.set('limit', limit.toString());
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const paginationState = {
-    pageIndex: currentPage - 1, // zero-based index for React Table
+    pageIndex: currentPage - 1,
     pageSize: pageSize
   };
 
@@ -72,8 +76,7 @@ export function DataTable<TData, TValue>({
         ? updaterOrValue(paginationState)
         : updaterOrValue;
 
-    setCurrentPage(pagination.pageIndex + 1); // converting zero-based index to one-based
-    setPageSize(pagination.pageSize);
+    updateParams(pagination.pageIndex + 1, pagination.pageSize);
   };
 
   const table = useReactTable({

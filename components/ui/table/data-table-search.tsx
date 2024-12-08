@@ -2,20 +2,14 @@
 
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-import { Options } from 'nuqs';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useTransition } from 'react';
 
 interface DataTableSearchProps {
   searchKey: string;
   searchQuery: string;
-  setSearchQuery: (
-    value: string | ((old: string) => string | null) | null,
-    options?: Options<any> | undefined
-  ) => Promise<URLSearchParams>;
-  setPage: <Shallow>(
-    value: number | ((old: number) => number | null) | null,
-    options?: Options<Shallow> | undefined
-  ) => Promise<URLSearchParams>;
+  setSearchQuery: (value: string | null) => void;
+  setPage: (value: number) => void;
 }
 
 export function DataTableSearch({
@@ -24,11 +18,13 @@ export function DataTableSearch({
   setSearchQuery,
   setPage
 }: DataTableSearchProps) {
-  const [isLoading, startTransition] = useTransition();
+  const [isPending, startTransition] = useTransition();
 
   const handleSearch = (value: string) => {
-    setSearchQuery(value, { startTransition });
-    setPage(1); // Reset page to 1 when search changes
+    startTransition(() => {
+      setSearchQuery(value);
+      setPage(1);
+    });
   };
 
   return (
@@ -36,7 +32,7 @@ export function DataTableSearch({
       placeholder={`Search ${searchKey}...`}
       value={searchQuery ?? ''}
       onChange={(e) => handleSearch(e.target.value)}
-      className={cn('w-full md:max-w-sm', isLoading && 'animate-pulse')}
+      className={cn('w-full md:max-w-sm', isPending && 'animate-pulse')}
     />
   );
 }
