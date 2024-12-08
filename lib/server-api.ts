@@ -1,4 +1,3 @@
-import { cookies } from 'next/headers';
 import { auth } from '@/auth';
 
 async function getAuthHeaders() {

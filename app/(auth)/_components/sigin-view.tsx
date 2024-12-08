@@ -1,8 +1,8 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import UserAuthForm from './user-auth-form';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import UserAuthForm from './user-auth-form';
 
 export const metadata: Metadata = {
   title: 'Authentication',
@@ -21,7 +21,7 @@ export default function SignInViewPage() {
       >
         Login
       </Link>
-      <div className="relative hidden h-full flex-col bg-muted p-10 text-white lg:flex dark:border-r">
+      <div className="relative hidden h-full flex-col bg-muted p-10 text-white dark:border-r lg:flex">
         <div className="absolute inset-0 bg-zinc-900" />
         <div className="relative z-20 flex items-center text-lg font-medium">
           <svg

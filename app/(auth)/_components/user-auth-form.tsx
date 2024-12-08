@@ -33,14 +33,8 @@ export default function UserAuthForm() {
   const callbackUrl = searchParams.get('callbackUrl');
   const [loading, startTransition] = useTransition();
 
-  const defaultValues = {
-    email: 'duncanmatthews15+admin@gmail.com',
-    password: 'DuncAdmin!0'
-  };
-
   const form = useForm<UserFormValue>({
-    resolver: zodResolver(formSchema),
-    defaultValues
+    resolver: zodResolver(formSchema)
   });
 
   const onSubmit = async (data: UserFormValue) => {
