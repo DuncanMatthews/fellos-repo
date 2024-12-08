@@ -15,7 +15,6 @@ import {
   getSortedRowModel,
   useReactTable
 } from '@tanstack/react-table';
-
 import {
   Table,
   TableBody,
@@ -24,19 +23,16 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
+import { Fellow } from '../data/schema';
 
-interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[];
-  data: TData[];
+interface DataTableProps {
+  columns: ColumnDef<Fellow>[];
+  data: Fellow[];
 }
 
-export function DataTable<TData, TValue>({
-  columns,
-  data
-}: DataTableProps<TData, TValue>) {
+export function DataTable({ columns, data }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});

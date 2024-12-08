@@ -11,25 +11,15 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
-import { Fellow, fellowSchema } from '../data/schema';
+import { Fellow } from '../data/schema';
 
-interface DataTableRowActionsProps<TData> {
-  row: Row<TData>;
+interface DataTableRowActionsProps {
+  row: Row<Fellow>;
 }
 
-export function DataTableRowActions<TData extends Fellow>({
-  row
-}: DataTableRowActionsProps<TData>) {
-  const safeData = {
-    ...row.original,
-    is_critical_information_modified:
-      row.original.is_critical_information_modified ?? false,
-    is_stripe_onboarding_complete:
-      row.original.is_stripe_onboarding_complete ?? false,
-    user_change_logs: row.original.user_change_logs ?? []
-  };
-
-  const fellow = fellowSchema.parse(safeData);
+export function DataTableRowActions({ row }: DataTableRowActionsProps) {
+  // No need for safe data or schema parsing since our schema already handles defaults
+  const fellow = row.original;
 
   return (
     <DropdownMenu>
@@ -38,7 +28,7 @@ export function DataTableRowActions<TData extends Fellow>({
           variant="ghost"
           className="flex h-8 w-8 p-0 data-[state=open]:bg-muted"
         >
-          <MoreHorizontal />
+          <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">Open menu</span>
         </Button>
       </DropdownMenuTrigger>
@@ -47,10 +37,17 @@ export function DataTableRowActions<TData extends Fellow>({
         <DropdownMenuItem>Edit Details</DropdownMenuItem>
         <DropdownMenuItem>View Change History</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>Verify Profile</DropdownMenuItem>
+        <DropdownMenuItem
+          disabled={Boolean(fellow.last_admin_profile_verification)}
+        >
+          Verify Profile
+        </DropdownMenuItem>
         <DropdownMenuItem>Update Status</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-red-600">
+        <DropdownMenuItem
+          className="text-red-600"
+          disabled={fellow.status === 'inactive'}
+        >
           Deactivate
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

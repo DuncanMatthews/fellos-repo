@@ -6,13 +6,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { DataTableColumnHeader } from './data-table-column-header';
 import { Badge } from '@/components/ui/badge';
 import { DataTableRowActions } from './data-table-row-actions';
-import {
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  History,
-  CreditCard
-} from 'lucide-react';
+import { History, CreditCard } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,9 +15,15 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from '@/components/ui/tooltip';
 
 export const columns: ColumnDef<Fellow>[] = [
-  // Selection column
   {
     id: 'select',
     header: ({ table }) => (
@@ -48,22 +48,44 @@ export const columns: ColumnDef<Fellow>[] = [
     enableSorting: false,
     enableHiding: false
   },
-
-  // Primary Information
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Name" />
+      <DataTableColumnHeader column={column} title="Fellow" />
     ),
     cell: ({ row }) => (
-      <div className="flex items-center space-x-2">
-        <span className="font-medium">{row.getValue('name') || 'N/A'}</span>
+      <div className="flex items-center space-x-3">
+        <Avatar>
+          <AvatarImage
+            src={row.original.photo_url || ''}
+            alt={row.getValue('name')}
+          />
+          <AvatarFallback>
+            {String(row.getValue('name')).charAt(0)}
+          </AvatarFallback>
+        </Avatar>
+        <div>
+          <div className="font-medium">{row.getValue('name') || 'N/A'}</div>
+          <div className="text-sm text-muted-foreground">
+            {row.getValue('email')}
+          </div>
+        </div>
         {row.original.is_critical_information_modified && (
-          <Badge variant="destructive">Modified</Badge>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Badge variant="destructive">Modified</Badge>
+              </TooltipTrigger>
+              <TooltipContent>
+                Critical information has been modified
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         )}
       </div>
     )
   },
+
   {
     accessorKey: 'status',
     header: ({ column }) => (
@@ -72,49 +94,112 @@ export const columns: ColumnDef<Fellow>[] = [
     cell: ({ row }) => {
       const status = row.getValue('status') as string;
       const logs =
-        row.original.user_change_logs?.filter((log) => log.type === 'status') ||
+        row.original.user_change_logs?.filter((log) => log.type === 'status') ??
         [];
+
+      const getStatusBadgeColor = (status: string | null) => {
+        switch (status?.toLowerCase()) {
+          case 'active':
+            return 'bg-green-100 text-green-800';
+          case 'inactive':
+          case 'deactivated':
+            return 'bg-red-100 text-red-800';
+          case 'pending':
+          case 'pending_deletion':
+          case 'pending_meet_and_greet':
+            return 'bg-yellow-100 text-yellow-800';
+          case 'stale':
+            return 'bg-gray-100 text-gray-800';
+          case 'training_required':
+            return 'bg-blue-100 text-blue-800';
+          case 'reference_check_required':
+            return 'bg-purple-100 text-purple-800';
+          case 'additional_information_needed':
+            return 'bg-orange-100 text-orange-800';
+          default:
+            return 'bg-yellow-100 text-yellow-800';
+        }
+      };
 
       return (
         <div className="flex items-center space-x-2">
-          <Badge
-            variant="outline"
-            className={
-              status === 'active'
-                ? 'bg-green-100 text-green-800'
-                : status === 'inactive'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-yellow-100 text-yellow-800'
-            }
-          >
+          <Badge variant="outline" className={getStatusBadgeColor(status)}>
             {status || 'pending'}
           </Badge>
-          {logs?.length > 0 && (
+          {logs.length > 0 && (
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="ghost" size="sm">
+                <Button variant="ghost" size="sm" className="relative">
                   <History className="h-4 w-4" />
+                  {logs.length > 1 && (
+                    <span className="absolute -right-1 -top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[8px] text-white">
+                      {logs.length}
+                    </span>
+                  )}
                 </Button>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="max-w-2xl">
                 <DialogHeader>
-                  <DialogTitle>Status History</DialogTitle>
+                  <DialogTitle className="flex items-center justify-between">
+                    <span>Status History</span>
+                    <Badge variant="secondary">{logs.length} changes</Badge>
+                  </DialogTitle>
                 </DialogHeader>
-                <div className="space-y-3">
+                <div className="max-h-[60vh] space-y-4 overflow-y-auto">
                   {logs.map((log, i) => (
-                    <div key={i} className="border-b pb-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>
-                          {log.old_value} → {log.new_value}
-                        </span>
-                        <span className="text-muted-foreground">
-                          {new Date(log.timestamp).toLocaleDateString()}
-                        </span>
+                    <div key={i} className="relative border-b pb-4 text-sm">
+                      {i === 0 && (
+                        <Badge
+                          className="absolute -top-2 right-0"
+                          variant="secondary"
+                        >
+                          Latest
+                        </Badge>
+                      )}
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <div className="font-medium">Status Change</div>
+                          <div className="flex items-center space-x-2">
+                            <Badge
+                              variant="outline"
+                              className={getStatusBadgeColor(log.old_value)}
+                            >
+                              {log.old_value || 'None'}
+                            </Badge>
+                            <span>→</span>
+                            <Badge
+                              variant="outline"
+                              className={getStatusBadgeColor(log.new_value)}
+                            >
+                              {log.new_value}
+                            </Badge>
+                          </div>
+                        </div>
+                        <div className="text-right text-muted-foreground">
+                          <div>ID: {log.id}</div>
+                          <div>User: {log.user_id}</div>
+                          <div className="text-xs">
+                            {new Date(log.timestamp).toLocaleString('en-US', {
+                              year: 'numeric',
+                              month: 'short',
+                              day: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </div>
+                        </div>
                       </div>
                       {log.reason && (
-                        <p className="mt-1 text-muted-foreground">
-                          Reason: {log.reason.reason}
-                        </p>
+                        <div className="mt-2 rounded-md bg-muted/50 p-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-medium">
+                              Changed by: {log.reason.submitting_user_name}
+                            </span>
+                          </div>
+                          <p className="mt-1 text-sm text-muted-foreground">
+                            Reason: {log.reason.reason}
+                          </p>
+                        </div>
                       )}
                     </div>
                   ))}
@@ -137,10 +222,8 @@ export const columns: ColumnDef<Fellow>[] = [
       return value.includes(row.getValue(id));
     }
   },
-
-  // Verification & Payments
   {
-    accessorKey: 'verificationStatus',
+    accessorKey: 'last_admin_profile_verification',
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Verification" />
     ),
@@ -148,12 +231,14 @@ export const columns: ColumnDef<Fellow>[] = [
       <div className="flex items-center space-x-2">
         <Badge
           variant={
-            row.getValue('verificationStatus') === 'Verified'
+            row.original.last_admin_profile_verification
               ? 'default'
               : 'secondary'
           }
         >
-          {row.getValue('verificationStatus')}
+          {row.original.last_admin_profile_verification
+            ? 'Verified'
+            : 'Pending'}
         </Badge>
         {row.original.last_admin_profile_verification && (
           <span className="text-xs text-muted-foreground">
@@ -181,8 +266,6 @@ export const columns: ColumnDef<Fellow>[] = [
       </Badge>
     )
   },
-
-  // Contact & Personal Info
   {
     accessorKey: 'email',
     header: ({ column }) => (
@@ -198,11 +281,11 @@ export const columns: ColumnDef<Fellow>[] = [
     enableHiding: true,
     cell: ({ row }) => {
       const challenges = row.getValue('challenges') as string[];
-      return challenges?.join(', ') || '-';
+      return challenges.join(', ') || '-';
     },
     filterFn: (row, id, value) => {
       const challenges = row.getValue(id) as string[];
-      return value.some((v: string) => challenges?.includes(v));
+      return value.some((v: string) => challenges.includes(v));
     }
   },
   {
@@ -211,7 +294,8 @@ export const columns: ColumnDef<Fellow>[] = [
       <DataTableColumnHeader column={column} title="Age" />
     ),
     filterFn: (row, columnId, value) => {
-      const age = parseInt(row.getValue(columnId), 10);
+      const age = row.getValue(columnId) as number;
+      if (!age) return false;
       if (value.includes('18-30')) return age >= 18 && age <= 30;
       if (value.includes('31-40')) return age >= 31 && age <= 40;
       if (value.includes('41-50')) return age >= 41 && age <= 50;
@@ -230,7 +314,6 @@ export const columns: ColumnDef<Fellow>[] = [
       return value.includes(row.getValue(id));
     }
   },
-
   {
     accessorKey: 'criminal_offences',
     header: ({ column }) => (
@@ -244,8 +327,6 @@ export const columns: ColumnDef<Fellow>[] = [
       return value.includes(row.getValue(id));
     }
   },
-
-  // Actions column always last
   {
     id: 'actions',
     cell: ({ row }) => <DataTableRowActions row={row} />

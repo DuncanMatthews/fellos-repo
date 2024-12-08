@@ -16,16 +16,19 @@ export const metadata = {
   title: 'Dashboard: Products'
 };
 
-type pageProps = {
-  searchParams: SearchParams;
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
-export default async function Page({ searchParams }: pageProps) {
-  // Allow nested RSCs to access the search params (in a type-safe way)
-  searchParamsCache.parse(searchParams);
+export default async function Page({ searchParams }: PageProps) {
+  // Resolve the searchParams promise
+  const resolvedSearchParams = await searchParams;
 
-  // This key is used for invoke suspense if any of the search params changed (used for filters).
-  const key = serialize({ ...searchParams });
+  // Parse and cache the resolved search params for nested RSCs
+  searchParamsCache.parse(resolvedSearchParams);
+
+  // Serialize the resolved search params to generate a unique key for Suspense
+  const key = serialize(resolvedSearchParams);
 
   return (
     <PageContainer>
