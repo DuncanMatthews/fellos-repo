@@ -34,7 +34,11 @@ export default function UserAuthForm() {
   const [loading, startTransition] = useTransition();
 
   const form = useForm<UserFormValue>({
-    resolver: zodResolver(formSchema)
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      email: '',
+      password: ''
+    }
   });
 
   const onSubmit = async (data: UserFormValue) => {

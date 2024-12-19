@@ -134,7 +134,7 @@ export const navItems: NavItem[] = [
     title: 'Fellows',
     url: '/dashboard/fellos',
     icon: 'user',
-    shortcut: ['e', 'e'],
+    shortcut: ['f', 'f'],
     isActive: true,
     items: [] // No child items
   },
@@ -142,8 +142,16 @@ export const navItems: NavItem[] = [
     title: 'Finders',
     url: '/dashboard/finders',
     icon: 'user2',
-    shortcut: ['p', 'p'],
-    isActive: false,
+    shortcut: ['r', 'r'],
+    isActive: true,
+    items: [] // No child items
+  },
+  {
+    title: 'Interactions',
+    url: '/dashboard/interactions',
+    icon: 'user',
+    shortcut: ['u', 'u'],
+    isActive: true,
     items: [] // No child items
   }
   // {
