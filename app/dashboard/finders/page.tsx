@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { api } from '@/lib/server-api';
 import { Finder, FindersResponse } from './data/schema';
+import FinderStatsCards from './_components/finder-stats';
 
 async function getFinders(): Promise<Finder[]> {
   try {
@@ -12,7 +13,7 @@ async function getFinders(): Promise<Finder[]> {
     if (!session) redirect('/api/auth/signin');
 
     const response = await api.get<FindersResponse>(
-      '/api/admin/finders/?limit=500'
+      '/api/admin/finders/?limit=10'
     );
     return response?.items || [];
   } catch (error) {
@@ -23,6 +24,7 @@ async function getFinders(): Promise<Finder[]> {
 
 export default async function FindersPage() {
   const finders = await getFinders();
+  console.log('finders', finders);
 
   return (
     <div className="hidden h-full flex-1 flex-col space-y-8 p-8 md:flex">
@@ -36,6 +38,7 @@ export default async function FindersPage() {
           </p>
         </div>
       </div>
+      <FinderStatsCards finders={finders} />
       <DataTable data={finders} columns={columns} />
     </div>
   );

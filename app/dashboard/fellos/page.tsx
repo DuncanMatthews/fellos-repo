@@ -5,6 +5,7 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { api } from '@/lib/server-api';
 import { Fellow, FellowsResponse } from './data/schema';
+import StatsCards from './_components/stats-card';
 
 async function getFellows(): Promise<Fellow[]> {
   try {
@@ -36,6 +37,7 @@ export default async function FellowPage() {
           </p>
         </div>
       </div>
+      <StatsCards fellows={fellows} />
       <DataTable data={fellows} columns={columns} />
     </div>
   );

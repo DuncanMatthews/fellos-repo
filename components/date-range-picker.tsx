@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -8,17 +9,46 @@ import {
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { addDays, format } from 'date-fns';
+import { format } from 'date-fns';
 import * as React from 'react';
 import { DateRange } from 'react-day-picker';
 
+interface CalendarDateRangePickerProps {
+  className?: string;
+  value?: {
+    from: Date;
+    to: Date;
+  };
+  onChange?: (date: { from: Date; to: Date }) => void;
+}
+
 export function CalendarDateRangePicker({
-  className
-}: React.HTMLAttributes<HTMLDivElement>) {
-  const [date, setDate] = React.useState<DateRange | undefined>({
-    from: new Date(2023, 0, 20),
-    to: addDays(new Date(2023, 0, 20), 20)
-  });
+  className,
+  value,
+  onChange
+}: CalendarDateRangePickerProps) {
+  // Use internal state if not controlled
+  const [internalDate, setInternalDate] = React.useState<DateRange | undefined>(
+    {
+      from: value?.from || new Date(),
+      to: value?.to || new Date()
+    }
+  );
+
+  // Use value prop if provided, otherwise use internal state
+  const date = value ? { from: value.from, to: value.to } : internalDate;
+
+  const handleSelect = (newDate: DateRange | undefined) => {
+    if (newDate?.from && newDate?.to) {
+      // If controlled, call onChange
+      if (onChange) {
+        onChange({ from: newDate.from, to: newDate.to });
+      } else {
+        // Otherwise update internal state
+        setInternalDate(newDate);
+      }
+    }
+  };
 
   return (
     <div className={cn('grid gap-2', className)}>
@@ -53,7 +83,7 @@ export function CalendarDateRangePicker({
             mode="range"
             defaultMonth={date?.from}
             selected={date}
-            onSelect={setDate}
+            onSelect={handleSelect}
             numberOfMonths={2}
           />
         </PopoverContent>

@@ -23,17 +23,24 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
+
   return (
     <html
       lang="en"
       className={`${lato.className}`}
       suppressHydrationWarning={true}
     >
-      <body className={'overflow-hidden'}>
+      <body className="min-h-screen">
         <NextTopLoader showSpinner={false} />
         <Providers session={session}>
-          <Toaster />
-          {children}
+          <div className="relative flex min-h-screen flex-col">
+            <div className="flex-1 flex-grow">
+              <div className="container relative mx-auto h-full flex-1">
+                <Toaster />
+                {children}
+              </div>
+            </div>
+          </div>
         </Providers>
       </body>
     </html>

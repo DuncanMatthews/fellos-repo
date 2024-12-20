@@ -4,7 +4,12 @@ import { DataTable } from './_components/data-table';
 import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import { api } from '@/lib/server-api';
-import { Interaction, InteractionsResponse } from './data/schema';
+import {
+  Interaction,
+  InteractionQuery,
+  InteractionsResponse
+} from './data/schema';
+import InteractionsDashboard from './_components/interaction-stats';
 
 export const metadata: Metadata = {
   title: 'Interactions Dashboard',
@@ -32,8 +37,6 @@ async function getInteractions(): Promise<Interaction[]> {
       `/api/admin/interactions/?${queryParams}`
     );
 
-    console.log('Fetched Interactions:', response?.items); // Log the fetched data
-
     return response?.items || [];
   } catch (error) {
     console.error('Error fetching interactions:', error);
@@ -42,7 +45,7 @@ async function getInteractions(): Promise<Interaction[]> {
 }
 
 export default async function InteractionsPage() {
-  const interactions = await getInteractions();
+  const interactions: Interaction[] = await getInteractions();
 
   // Calculate counts
   const completedCount = interactions.filter(
@@ -60,30 +63,8 @@ export default async function InteractionsPage() {
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Interactions</h2>
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <div className="rounded-lg border p-4">
-          <div className="text-sm font-medium text-muted-foreground">
-            Completed Interactions
-          </div>
-          <div className="text-2xl font-bold">{completedCount}</div>
-        </div>
-        <div className="rounded-lg border p-4">
-          <div className="text-sm font-medium text-muted-foreground">
-            Pending Payments
-          </div>
-          <div className="text-2xl font-bold text-amber-600">
-            {pendingPayments}
-          </div>
-        </div>
-        <div className="rounded-lg border p-4">
-          <div className="text-sm font-medium text-muted-foreground">
-            Escalated Cases
-          </div>
-          <div className="text-2xl font-bold text-red-600">
-            {escalatedCount}
-          </div>
-        </div>
-      </div>
+
+      <InteractionsDashboard interactions={interactions} />
 
       {/* Main Data Table */}
       <DataTable data={interactions} columns={columns} />
