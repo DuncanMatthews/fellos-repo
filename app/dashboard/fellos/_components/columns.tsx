@@ -64,12 +64,7 @@ export const columns: ColumnDef<Fellow>[] = [
             {String(row.getValue('name')).charAt(0)}
           </AvatarFallback>
         </Avatar>
-        <div>
-          <div className="font-medium">{row.getValue('name') || 'N/A'}</div>
-          <div className="text-sm text-muted-foreground">
-            {row.getValue('email')}
-          </div>
-        </div>
+        <div className="font-medium">{row.getValue('name') || 'N/A'}</div>
         {row.original.is_critical_information_modified && (
           <TooltipProvider>
             <Tooltip>
@@ -85,7 +80,6 @@ export const columns: ColumnDef<Fellow>[] = [
       </div>
     )
   },
-
   {
     accessorKey: 'status',
     header: ({ column }) => (
@@ -265,13 +259,6 @@ export const columns: ColumnDef<Fellow>[] = [
         {row.original.is_stripe_onboarding_complete ? 'Complete' : 'Pending'}
       </Badge>
     )
-  },
-  {
-    accessorKey: 'email',
-    header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Email" />
-    ),
-    cell: ({ row }) => <div>{row.getValue('email')}</div>
   },
   {
     accessorKey: 'challenges',

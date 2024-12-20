@@ -15,6 +15,7 @@ async function getFellos(): Promise<Fellow[]> {
     const response = await api.get<FellosResponse>(
       '/api/admin/fellos/?limit=1000'
     );
+
     return response?.items || [];
   } catch (error) {
     console.error('Error fetching fellos:', error);
