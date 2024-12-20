@@ -13,7 +13,7 @@ async function getFinders(): Promise<Finder[]> {
     if (!session) redirect('/api/auth/signin');
 
     const response = await api.get<FindersResponse>(
-      '/api/admin/finders/?limit=10'
+      '/api/admin/finders/?limit=1000'
     );
     return response?.items || [];
   } catch (error) {

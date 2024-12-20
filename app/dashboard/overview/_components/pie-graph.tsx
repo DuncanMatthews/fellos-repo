@@ -13,7 +13,7 @@ import { Fellow } from '../../fellos/data/schema';
 import { Finder } from '../../finders/data/schema';
 
 interface PieGraphProps {
-  fellows: Fellow[];
+  fellos: Fellow[];
   finders: Finder[];
 }
 
@@ -24,9 +24,9 @@ const CHALLENGE_COLORS = {
   relationships: '#ef4444'
 };
 
-export function PieGraph({ fellows, finders }: PieGraphProps) {
+export function PieGraph({ fellos, finders }: PieGraphProps) {
   const data = useMemo(() => {
-    const allUsers = [...fellows, ...finders];
+    const allUsers = [...fellos, ...finders];
     const challengeCounts: Record<string, number> = {};
     let totalChallenges = 0;
 
@@ -44,13 +44,13 @@ export function PieGraph({ fellows, finders }: PieGraphProps) {
       value: count,
       percentage: ((count / totalChallenges) * 100).toFixed(1)
     }));
-  }, [fellows, finders]);
+  }, [fellos, finders]);
 
   const avgChallengesPerUser = useMemo(() => {
-    const totalUsers = fellows.length + finders.length;
+    const totalUsers = fellos.length + finders.length;
     const totalChallenges = data.reduce((sum, item) => sum + item.value, 0);
     return (totalChallenges / totalUsers).toFixed(1);
-  }, [data, fellows.length, finders.length]);
+  }, [data, fellos.length, finders.length]);
 
   const mostCommonChallenge = useMemo(() => {
     return data.reduce((prev, current) =>

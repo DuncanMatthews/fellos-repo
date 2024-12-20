@@ -52,10 +52,10 @@ export const fellowSchema = z.object({
 
 export type Fellow = z.infer<typeof fellowSchema>;
 
-export const fellowsResponseSchema = z.object({
+export const fellosResponseSchema = z.object({
   items: z.array(fellowSchema),
   amount: z.number(),
   next_token: z.string()
 });
 
-export type FellowsResponse = z.infer<typeof fellowsResponseSchema>;
+export type FellosResponse = z.infer<typeof fellosResponseSchema>;

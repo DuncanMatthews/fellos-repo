@@ -15,23 +15,23 @@ import { Fellow } from '../../fellos/data/schema';
 import { Finder } from '../../finders/data/schema';
 
 interface BarGraphProps {
-  fellows: Fellow[];
+  fellos: Fellow[];
   finders: Finder[];
 }
 
-export function BarGraph({ fellows, finders }: BarGraphProps) {
+export function BarGraph({ fellos, finders }: BarGraphProps) {
   const data = useMemo(() => {
     const challengeCounts = {
-      alcohol_use: { fellows: 0, finders: 0 },
-      drug_use: { fellows: 0, finders: 0 },
-      parenting: { fellows: 0, finders: 0 },
-      relationships: { fellows: 0, finders: 0 }
+      alcohol_use: { fellos: 0, finders: 0 },
+      drug_use: { fellos: 0, finders: 0 },
+      parenting: { fellos: 0, finders: 0 },
+      relationships: { fellos: 0, finders: 0 }
     };
 
-    fellows.forEach((fellow) => {
+    fellos.forEach((fellow) => {
       fellow.challenges.forEach((challenge) => {
         if (challenge in challengeCounts) {
-          challengeCounts[challenge as keyof typeof challengeCounts].fellows++;
+          challengeCounts[challenge as keyof typeof challengeCounts].fellos++;
         }
       });
     });
@@ -48,11 +48,11 @@ export function BarGraph({ fellows, finders }: BarGraphProps) {
       challenge: challenge
         .replace('_', ' ')
         .replace(/\b\w/g, (c) => c.toUpperCase()),
-      Fellows: counts.fellows,
+      Fellos: counts.fellos,
       Finders: counts.finders,
-      Total: counts.fellows + counts.finders
+      Total: counts.fellos + counts.finders
     }));
-  }, [fellows, finders]);
+  }, [fellos, finders]);
 
   return (
     <ResponsiveContainer width="100%" height="100%">
@@ -71,7 +71,7 @@ export function BarGraph({ fellows, finders }: BarGraphProps) {
           }}
         />
         <Legend />
-        <Bar dataKey="Fellows" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="Fellos" fill="#3b82f6" radius={[4, 4, 0, 0]} />
         <Bar dataKey="Finders" fill="#22c55e" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>

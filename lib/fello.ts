@@ -1,5 +1,5 @@
 // lib/api/fello.ts
-import { Fellow, FellowsResponse } from '@/app/dashboard/fellos/data/schema';
+import { Fellow, FellosResponse } from '@/app/dashboard/fellos/data/schema';
 import { auth } from '@/auth';
 import {
   FelloGeneral,
@@ -16,18 +16,18 @@ interface InteractionsResponse {
   next_token?: string;
 }
 
-// Your existing getFellows function
-export async function getFellows(): Promise<Fellow[]> {
+// Your existing getFellos function
+export async function getFellos(): Promise<Fellow[]> {
   try {
     const session = await auth();
     if (!session) redirect('/api/auth/signin');
 
-    const response = await api.get<FellowsResponse>(
+    const response = await api.get<FellosResponse>(
       '/api/admin/fellos/?limit=10'
     );
     return response?.items || [];
   } catch (error) {
-    console.log('Error fetching fellows:', error);
+    console.log('Error fetching fellos:', error);
     return [];
   }
 }

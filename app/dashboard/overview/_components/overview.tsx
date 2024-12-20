@@ -19,8 +19,8 @@ import { Interaction } from '../../interactions/data/schema';
 import { RecentInteractions } from './recent-interactions';
 
 interface Analytics {
-  totalFellows: number;
-  activeFellows: number;
+  totalFellos: number;
+  activeFellos: number;
   totalFinders: number;
   activeFinders: number;
   totalInteractions: number;
@@ -31,7 +31,7 @@ interface Analytics {
 }
 
 interface OverViewPageProps {
-  fellows: Fellow[];
+  fellos: Fellow[];
   finders: Finder[];
   interactions: Interaction[];
   analytics: Analytics;
@@ -85,7 +85,7 @@ const ChartCard = ({
 );
 
 export default function OverViewPage({
-  fellows,
+  fellos,
   finders,
   interactions,
   analytics
@@ -95,21 +95,21 @@ export default function OverViewPage({
     100
   ).toFixed(1);
   const activeUsersPercent = (
-    ((analytics.activeFellows + analytics.activeFinders) /
-      (analytics.totalFellows + analytics.totalFinders)) *
+    ((analytics.activeFellos + analytics.activeFinders) /
+      (analytics.totalFellos + analytics.totalFinders)) *
     100
   ).toFixed(1);
 
   const stats = [
     {
       title: 'Total Users',
-      value: analytics.totalFellows + analytics.totalFinders,
-      description: `${analytics.totalFellows} Fellows, ${analytics.totalFinders} Finders`,
+      value: analytics.totalFellos + analytics.totalFinders,
+      description: `${analytics.totalFellos} Fellos, ${analytics.totalFinders} Finders`,
       icon: <Users className="h-4 w-4" />
     },
     {
       title: 'Active Users',
-      value: analytics.activeFellows + analytics.activeFinders,
+      value: analytics.activeFellos + analytics.activeFinders,
       description: `${activeUsersPercent}% of total users`,
       icon: <UserCheck className="h-4 w-4" />,
       iconColor: 'text-green-500'
@@ -182,7 +182,7 @@ export default function OverViewPage({
                 description="Most common challenges being addressed"
                 className="col-span-4"
               >
-                <BarGraph fellows={fellows} finders={finders} />
+                <BarGraph fellos={fellos} finders={finders} />
               </ChartCard>
 
               <ChartCard
@@ -190,7 +190,7 @@ export default function OverViewPage({
                 description="Distribution of platform users"
                 className="col-span-3"
               >
-                <PieGraph fellows={fellows} finders={finders} />
+                <PieGraph fellos={fellos} finders={finders} />
               </ChartCard>
             </div>
           </TabsContent>

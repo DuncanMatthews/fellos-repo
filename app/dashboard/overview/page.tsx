@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { auth } from '@/auth';
 import { api } from '@/lib/server-api';
 import OverViewPage from './_components/overview';
-import { Fellow, FellowsResponse } from '../fellos/data/schema';
+import { Fellow, FellosResponse } from '../fellos/data/schema';
 import { Finder, FindersResponse } from '../finders/data/schema';
 import { Interaction, InteractionsResponse } from '../interactions/data/schema';
 
@@ -11,14 +11,16 @@ export const metadata: Metadata = {
   title: 'Dashboard : Overview'
 };
 
-async function getFellows(): Promise<Fellow[]> {
+async function getFellos(): Promise<Fellow[]> {
   try {
     const session = await auth();
     if (!session) redirect('/api/auth/signin');
-    const response = await api.get<FellowsResponse>('/api/admin/fellos/');
+    const response = await api.get<FellosResponse>(
+      '/api/admin/fellos/?limit=1000'
+    );
     return response?.items || [];
   } catch (error) {
-    console.error('Error fetching fellows:', error);
+    console.error('Error fetching fellos:', error);
     return [];
   }
 }
@@ -27,7 +29,9 @@ async function getFinders(): Promise<Finder[]> {
   try {
     const session = await auth();
     if (!session) redirect('/api/auth/signin');
-    const response = await api.get<FindersResponse>('/api/admin/finders/');
+    const response = await api.get<FindersResponse>(
+      '/api/admin/finders/?limit=1000'
+    );
     return response?.items || [];
   } catch (error) {
     console.error('Error fetching finders:', error);
@@ -40,7 +44,7 @@ async function getInteractions(): Promise<Interaction[]> {
     const session = await auth();
     if (!session) redirect('/api/auth/signin');
     const response = await api.get<InteractionsResponse>(
-      '/api/admin/interactions/'
+      '/api/admin/interactions/?limit=1000'
     );
     return response?.items || [];
   } catch (error) {
@@ -50,11 +54,11 @@ async function getInteractions(): Promise<Interaction[]> {
 }
 
 function calculateAnalytics(
-  fellows: Fellow[],
+  fellos: Fellow[],
   finders: Finder[],
   interactions: Interaction[]
 ) {
-  const activeFellows = fellows.filter((f) => f.status === 'active').length;
+  const activeFellos = fellos.filter((f) => f.status === 'active').length;
   const activeFinders = finders.filter((f) => f.status === 'active').length;
 
   const completedInteractions = interactions.filter(
@@ -77,8 +81,8 @@ function calculateAnalytics(
   const periodEnd = new Date().toISOString().split('T')[0];
 
   return {
-    totalFellows: fellows.length,
-    activeFellows,
+    totalFellos: fellos.length,
+    activeFellos,
     totalFinders: finders.length,
     activeFinders,
     totalInteractions: interactions.length,
@@ -96,18 +100,18 @@ export default async function Page() {
 
   try {
     // Fetch data in parallel
-    const [fellows, finders, interactions] = await Promise.all([
-      getFellows(),
+    const [fellos, finders, interactions] = await Promise.all([
+      getFellos(),
       getFinders(),
       getInteractions()
     ]);
 
     // Calculate analytics from the fetched data
-    const analytics = calculateAnalytics(fellows, finders, interactions);
+    const analytics = calculateAnalytics(fellos, finders, interactions);
 
     return (
       <OverViewPage
-        fellows={fellows}
+        fellos={fellos}
         finders={finders}
         interactions={interactions}
         analytics={analytics}
