@@ -1,62 +1,122 @@
 import { auth } from '@/auth';
 
+// Extended RequestInit type with optional params
+interface ExtendedRequestInit extends RequestInit {
+  params?: Record<string, string | number | boolean>;
+}
+
 async function getAuthHeaders() {
   const session = await auth();
-
   if (!session?.accessToken) {
-    throw new Error('No access token available');
+    console.log('No access token available');
   }
-
   return new Headers({
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${session.accessToken}`,
+    Authorization: `Bearer ${session?.accessToken}`,
     'x-user-timezone': 'America/New_York'
   });
 }
 
-export async function fetchWithAuth(
+export async function fetchWithAuth<T>(
   endpoint: string,
-  options: RequestInit = {}
-) {
+  options: ExtendedRequestInit = {}
+): Promise<T> {
   try {
     const baseURL = process.env.NEXT_PUBLIC_API_URL;
     const headers = await getAuthHeaders();
 
-    const response = await fetch(`${baseURL}${endpoint}`, {
+    // Handle query parameters if they exist
+    let url = `${baseURL}${endpoint}`;
+    if (options.params) {
+      const searchParams = new URLSearchParams();
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined) {
+          searchParams.append(key, value.toString());
+        }
+      });
+      url += `?${searchParams.toString()}`;
+    }
+
+    const response = await fetch(url, {
       ...options,
       headers,
       cache: options.cache || 'no-store'
     });
 
+    const responseText = await response.text();
+
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('API error response:', errorText);
+      console.log('API error response:', responseText);
+      console.log(`API error: ${response.status}`);
       throw new Error(`API error: ${response.status}`);
     }
 
-    return response.json();
+    // Only try to parse as JSON if we have content
+    if (responseText) {
+      try {
+        return JSON.parse(responseText) as T;
+      } catch (e) {
+        console.log('Error parsing JSON:', e);
+        console.log('Response text:', responseText);
+        throw new Error('Invalid JSON response from server');
+      }
+    }
+
+    return null as T;
   } catch (error) {
-    console.error('Fetch error:', error);
+    console.log('Fetch error:', error);
     throw error;
   }
 }
 
+// Type for request options including query parameters
+interface RequestOptions<TData = unknown>
+  extends Omit<ExtendedRequestInit, 'body'> {
+  data?: TData;
+  params?: Record<string, string | number | boolean>;
+}
+
+// API client with proper typing
 export const api = {
-  get: <T>(endpoint: string) =>
-    fetchWithAuth(endpoint, { method: 'GET' }) as Promise<T>,
+  get: <T>(endpoint: string, options: Omit<RequestOptions, 'data'> = {}) =>
+    fetchWithAuth<T>(endpoint, {
+      method: 'GET',
+      ...options
+    }),
 
-  post: <T>(endpoint: string, data: any) =>
-    fetchWithAuth(endpoint, {
+  post: <T, TData = unknown>(
+    endpoint: string,
+    { data, ...options }: RequestOptions<TData> = {}
+  ) =>
+    fetchWithAuth<T>(endpoint, {
       method: 'POST',
-      body: JSON.stringify(data)
-    }) as Promise<T>,
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    }),
 
-  put: <T>(endpoint: string, data: any) =>
-    fetchWithAuth(endpoint, {
+  put: <T, TData = unknown>(
+    endpoint: string,
+    { data, ...options }: RequestOptions<TData> = {}
+  ) =>
+    fetchWithAuth<T>(endpoint, {
       method: 'PUT',
-      body: JSON.stringify(data)
-    }) as Promise<T>,
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    }),
 
-  delete: <T>(endpoint: string) =>
-    fetchWithAuth(endpoint, { method: 'DELETE' }) as Promise<T>
+  patch: <T, TData = unknown>(
+    endpoint: string,
+    { data, ...options }: RequestOptions<TData> = {}
+  ) =>
+    fetchWithAuth<T>(endpoint, {
+      method: 'PATCH',
+      body: data ? JSON.stringify(data) : undefined,
+      ...options
+    }),
+
+  delete: <T>(endpoint: string, options: Omit<RequestOptions, 'data'> = {}) =>
+    fetchWithAuth<T>(endpoint, {
+      method: 'DELETE',
+      ...options
+    })
 };

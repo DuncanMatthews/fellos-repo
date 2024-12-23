@@ -12,6 +12,8 @@ async function getFellos(): Promise<Fellow[]> {
     const session = await auth();
     if (!session) redirect('/api/auth/signin');
 
+    console.log('sessions', session);
+
     const response = await api.get<FellosResponse>(
       '/api/admin/fellos/?limit=1000'
     );

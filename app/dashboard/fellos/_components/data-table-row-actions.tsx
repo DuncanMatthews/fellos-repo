@@ -2,6 +2,7 @@
 
 import { Row } from '@tanstack/react-table';
 import { MoreHorizontal } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -18,8 +19,12 @@ interface DataTableRowActionsProps {
 }
 
 export function DataTableRowActions({ row }: DataTableRowActionsProps) {
-  // No need for safe data or schema parsing since our schema already handles defaults
+  const router = useRouter();
   const fellow = row.original;
+
+  const handleViewProfile = () => {
+    router.push(`/dashboard/fellos/${fellow.id}`);
+  };
 
   return (
     <DropdownMenu>
@@ -33,7 +38,9 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[160px]">
-        <DropdownMenuItem>View Profile</DropdownMenuItem>
+        <DropdownMenuItem onClick={handleViewProfile}>
+          View Profile
+        </DropdownMenuItem>
         <DropdownMenuItem>Edit Details</DropdownMenuItem>
         <DropdownMenuItem>View Change History</DropdownMenuItem>
         <DropdownMenuSeparator />
