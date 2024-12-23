@@ -71,7 +71,8 @@ export default function StatusChangeButton({
           <DialogHeader>
             <DialogTitle>Change Fellow Status</DialogTitle>
             <DialogDescription>
-              Update the fellow's status and provide a reason for the change.
+              Update the fellow&apos;s status and provide a reason for the
+              change.
             </DialogDescription>
           </DialogHeader>
 
