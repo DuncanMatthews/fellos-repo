@@ -11,9 +11,6 @@ import {
   Calendar,
   Clock,
   Activity,
-  CreditCard,
-  Globe,
-  Languages,
   BadgeCheck,
   AlertCircle
 } from 'lucide-react';
@@ -26,7 +23,7 @@ import {
   TooltipTrigger
 } from '@/components/ui/tooltip';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { FelloGeneralResponse } from '../../types';
+import { AdminFinderDetailsGeneralResponse } from '../../types';
 
 interface InfoItemProps {
   label: string;
@@ -71,7 +68,9 @@ function formatDate(date: string | null): string {
   }).format(new Date(date));
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({ status }: { status: string | null }) {
+  if (!status) return null;
+
   const variants: Record<string, { color: string; icon: React.ReactNode }> = {
     active: {
       color: 'bg-green-500/10 text-green-500 hover:bg-green-500/20',
@@ -101,7 +100,7 @@ function StatusBadge({ status }: { status: string }) {
 }
 
 interface GeneralInfoTabProps {
-  data: FelloGeneralResponse;
+  data: AdminFinderDetailsGeneralResponse;
 }
 
 export default function GeneralInfoTab({ data }: GeneralInfoTabProps) {
@@ -110,19 +109,8 @@ export default function GeneralInfoTab({ data }: GeneralInfoTabProps) {
     visible: { opacity: 1, y: 0 }
   };
 
-  const hasModifiedInfo = data.is_critical_information_modified;
-
   return (
     <div className="grid gap-6 p-6">
-      {hasModifiedInfo && (
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Critical information has been modified. Please review the changes.
-          </AlertDescription>
-        </Alert>
-      )}
-
       <div className="grid gap-6 md:grid-cols-2">
         <motion.div
           variants={cardVariants}
@@ -164,7 +152,7 @@ export default function GeneralInfoTab({ data }: GeneralInfoTabProps) {
                     </div>
                   ) : null
                 }
-                icon={<Languages className="h-4 w-4" />}
+                icon={<Clock className="h-4 w-4" />}
               />
               <InfoItem
                 label="Email"
@@ -233,16 +221,18 @@ export default function GeneralInfoTab({ data }: GeneralInfoTabProps) {
               <InfoItem
                 label="Rating"
                 value={
-                  <div className="flex items-center gap-1">
-                    <span>{data.rating}</span>
-                    <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                  </div>
+                  data.rating && (
+                    <div className="flex items-center gap-1">
+                      <span>{data.rating}</span>
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                    </div>
+                  )
                 }
                 icon={<Star className="h-4 w-4" />}
               />
               <InfoItem
-                label="Application Date"
-                value={formatDate(data.application_date)}
+                label="Registration Date"
+                value={formatDate(data.registration_date)}
                 icon={<Calendar className="h-4 w-4" />}
               />
               <InfoItem
@@ -255,44 +245,6 @@ export default function GeneralInfoTab({ data }: GeneralInfoTabProps) {
                 value={formatDate(data.last_activity_at)}
                 icon={<Activity className="h-4 w-4" />}
               />
-              <InfoItem
-                label="Stripe Setup"
-                value={
-                  <Badge
-                    variant={
-                      data.is_stripe_onboarding_complete
-                        ? 'default'
-                        : 'destructive'
-                    }
-                  >
-                    <span>
-                      {data.is_stripe_onboarding_complete
-                        ? 'Complete'
-                        : 'Incomplete'}
-                    </span>
-                  </Badge>
-                }
-                icon={<CreditCard className="h-4 w-4" />}
-              />
-              {Array.isArray(data.social_media) &&
-                data.social_media.length > 0 && (
-                  <InfoItem
-                    label="Social Media"
-                    value={
-                      <div className="flex flex-wrap gap-1">
-                        {data.social_media.map((social, index) => (
-                          <Badge
-                            key={`social-${social}-${index}`}
-                            variant="secondary"
-                          >
-                            {social}
-                          </Badge>
-                        ))}
-                      </div>
-                    }
-                    icon={<Globe className="h-4 w-4" />}
-                  />
-                )}
             </CardContent>
           </Card>
         </motion.div>

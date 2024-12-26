@@ -24,6 +24,7 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { Interaction } from '../data/schema';
+import { useRouter } from 'next/navigation';
 
 interface DataTableRowActionsProps {
   row: Row<Interaction>;
@@ -40,6 +41,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
     interaction.actual_duration &&
     interaction.actual_duration < interaction.duration * 0.8;
 
+  const router = useRouter();
+
+  const handleInteractionClick = () => {
+    router.push(`/dashboard/interactions/${interaction.id}`);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -55,7 +62,7 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
         {/* View Details */}
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleInteractionClick}>
           <Eye className="mr-2 h-4 w-4" />
           View Details
         </DropdownMenuItem>

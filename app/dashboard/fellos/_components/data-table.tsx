@@ -26,6 +26,7 @@ import {
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 import { Fellow } from '../data/schema';
+import { useRouter } from 'next/navigation';
 
 interface DataTableProps {
   columns: ColumnDef<Fellow>[];
@@ -34,6 +35,8 @@ interface DataTableProps {
 
 export function DataTable({ columns, data }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
+  const router = useRouter();
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -96,6 +99,10 @@ export function DataTable({ columns, data }: DataTableProps) {
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
+                    onClick={() =>
+                      router.push(`/dashboard/fellos/${row.original.id}`)
+                    }
+                    className="cursor-pointer hover:bg-muted"
                     data-state={row.getIsSelected() && 'selected'}
                   >
                     {row.getVisibleCells().map((cell) => (

@@ -42,6 +42,10 @@ export const participantSchema = z.object({
 // Updated interaction schema with enhanced tracking
 export const interactionSchema = z.object({
   id: z.number(),
+  fello_status: z.enum(['active', 'inactive', 'pending']),
+  finder_status: z.enum(['active', 'inactive', 'pending']),
+  fello_id: z.number(),
+  finder_id: z.number(),
 
   // Timing fields
   interaction_start_date: z.string(),

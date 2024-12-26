@@ -26,6 +26,7 @@ import {
 import { DataTablePagination } from './data-table-pagination';
 import { DataTableToolbar } from './data-table-toolbar';
 import { Finder } from '../data/schema';
+import { useRouter } from 'next/navigation';
 
 interface DataTableProps {
   columns: ColumnDef<Finder>[];
@@ -34,6 +35,8 @@ interface DataTableProps {
 
 export function DataTable({ columns, data }: DataTableProps) {
   const [rowSelection, setRowSelection] = React.useState({});
+  const router = useRouter();
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -129,7 +132,10 @@ export function DataTable({ columns, data }: DataTableProps) {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && 'selected'}
-                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() =>
+                    router.push(`/dashboard/finders/${row.original.id}`)
+                  }
+                  className="cursor-pointer hover:bg-muted"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

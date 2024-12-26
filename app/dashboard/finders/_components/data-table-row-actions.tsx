@@ -13,6 +13,7 @@ import {
   DropdownMenuLabel
 } from '@/components/ui/dropdown-menu';
 import { Finder } from '../data/schema';
+import { useRouter } from 'next/navigation';
 
 interface DataTableRowActionsProps {
   row: Row<Finder>;
@@ -24,6 +25,12 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
   const needsBackgroundCheck =
     !finder.criminal_offences || finder.status === 'background_check_required';
   const hasModifiedInfo = finder.is_critical_information_modified;
+
+  const router = useRouter();
+
+  const handleFinderClick = () => {
+    router.push(`/dashboard/finders/${finder.id}`);
+  };
 
   return (
     <DropdownMenu>
@@ -40,7 +47,10 @@ export function DataTableRowActions({ row }: DataTableRowActionsProps) {
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
         {/* View and Edit Actions */}
-        <DropdownMenuItem>View Profile</DropdownMenuItem>
+
+        <DropdownMenuItem onClick={handleFinderClick}>
+          View Profile
+        </DropdownMenuItem>
         <DropdownMenuItem>Edit Details</DropdownMenuItem>
 
         {/* History and Verification */}

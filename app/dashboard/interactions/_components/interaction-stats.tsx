@@ -13,8 +13,6 @@ import {
 } from 'lucide-react';
 import { Interaction } from '../data/schema';
 
-// Import types from your schema
-
 interface StatsCardProps {
   title: string;
   value: string | number;
@@ -47,15 +45,12 @@ const InteractionsDashboard = ({
   const completedCount = interactions.filter(
     (i) => i.interaction_status === 'completed'
   ).length;
-
   const pendingPayments = interactions.filter(
     (i) => i.is_payment_pending
   ).length;
-
   const escalatedCount = interactions.filter(
     (i) => i.interaction_status === 'escalated'
   ).length;
-
   const activeCount = interactions.filter(
     (i) => i.interaction_status === 'upcoming'
   ).length;
@@ -89,6 +84,19 @@ const InteractionsDashboard = ({
   const averageDuration = interactions.length
     ? Math.round(totalDuration / interactions.length)
     : 0;
+
+  // Calculate unique Fellos and Finders with upcoming interactions
+  const fellosWithUpcoming = new Set(
+    interactions
+      .filter((i) => i.interaction_status === 'upcoming')
+      .map((i) => i.fello_user_profile_id)
+  ).size;
+
+  const findersWithUpcoming = new Set(
+    interactions
+      .filter((i) => i.interaction_status === 'upcoming')
+      .map((i) => i.participant_user_profile_id)
+  ).size;
 
   // Calculate review required count
   const requiresReviewCount = interactions.filter(
@@ -132,14 +140,14 @@ const InteractionsDashboard = ({
         className="text-red-500"
       />
       <StatsCard
-        title="Average Duration"
-        value={`${averageDuration}m`}
-        Icon={Clock}
+        title="Fellos with Upcoming Sessions"
+        value={fellosWithUpcoming}
+        Icon={BarChart}
       />
       <StatsCard
-        title="Cancellation Rate"
-        value={`${cancellationRate}%`}
-        Icon={Calendar}
+        title="Finders with Upcoming Sessions"
+        value={findersWithUpcoming}
+        Icon={BarChart}
       />
     </div>
   );
